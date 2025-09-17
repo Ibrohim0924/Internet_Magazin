@@ -1,6 +1,9 @@
 import {
-  Injectable, CanActivate, ExecutionContext,
-  UnauthorizedException, ForbiddenException,
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
@@ -11,10 +14,10 @@ export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const required = this.reflector.getAllAndOverride<Role[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const required = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (!required || required.length === 0) return true;
 
     const req = context.switchToHttp().getRequest();
@@ -23,7 +26,9 @@ export class RolesGuard implements CanActivate {
 
     const userRoles: string[] = Array.isArray(user?.roles)
       ? user.roles
-      : (user?.role ? [user.role] : []);
+      : user?.role
+        ? [user.role]
+        : [];
 
     if (userRoles.length === 0) {
       throw new ForbiddenException('No roles assigned');
@@ -34,7 +39,7 @@ export class RolesGuard implements CanActivate {
 
     if (userRoles.includes(Role.Admin)) return true;
 
-    const allowed = required.some(r => userRoles.includes(r));
+    const allowed = required.some((r) => userRoles.includes(r));
     if (!allowed) {
       throw new ForbiddenException('Insufficient role');
     }

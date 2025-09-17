@@ -1,5 +1,8 @@
 import { DataSource } from 'typeorm';
 import { User } from '../users/entities/user.entity';
+import { Product } from '../products/entities/product.entity';
+import { ProductReview } from '../products/entities/product-review.entity';
+import { Category } from '../categories/entities/category.entity';
 import * as dotenv from 'dotenv';
 import { Role } from '../auth/decorators/roles.enum';
 
@@ -13,14 +16,16 @@ async function updateSuperAdminRole() {
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    entities: [User],
+    entities: [User, Product, ProductReview, Category],
     synchronize: false,
   });
   await dataSource.initialize();
 
   const userRepo = dataSource.getRepository(User);
-  const superAdmin = await userRepo.findOne({ where: { email: 'ibrohimtoshqoriyev3@mail.com' } });
-  
+  const superAdmin = await userRepo.findOne({
+    where: { email: 'ibrohimtoshqoriyev3@mail.com' },
+  });
+
   if (superAdmin) {
     superAdmin.role = Role.SuperAdmin;
     await userRepo.save(superAdmin);
@@ -28,7 +33,7 @@ async function updateSuperAdminRole() {
   } else {
     console.log('Superadmin not found!');
   }
-  
+
   await dataSource.destroy();
 }
 
