@@ -22,7 +22,7 @@ async function checkSuperAdmin() {
 
   const userRepo = dataSource.getRepository(User);
   const superAdmin = await userRepo.findOne({
-    where: { email: 'ibrohimtoshqoriyev3@mail.com' },
+    where: { email: 'ibrohimtoshqoriyev3@gmail.com' },
   });
 
   if (superAdmin) {

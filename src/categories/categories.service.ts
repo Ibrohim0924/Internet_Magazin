@@ -1,12 +1,10 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from '../products/entities/product.entity';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -88,23 +86,10 @@ export class CategoriesService {
     return this.categoryRepo.save(category);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<{ message: string }> {
     const category = await this.findOne(id);
-    const childrenCount = await this.categoryRepo.count({
-      where: { parentId: category.id },
-    });
-    if (childrenCount > 0) {
-      throw new ConflictException('Cannot delete category with children');
-    }
-
-    const productCount = await this.categoryRepo.manager.count(Product, {
-      where: { categoryId: id },
-    });
-    if (productCount > 0) {
-      throw new ConflictException('Cannot delete category linked to products');
-    }
-
     await this.categoryRepo.remove(category);
+    return { message: 'Category deleted successfully' };
   }
 
   private async getParent(parentId: number): Promise<Category> {
@@ -145,3 +130,4 @@ export class CategoriesService {
     }
   }
 }
+

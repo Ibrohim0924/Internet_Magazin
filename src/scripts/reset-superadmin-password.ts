@@ -9,7 +9,7 @@ import { Role } from '../auth/decorators/roles.enum';
 
 dotenv.config();
 
-async function createSuperAdmin() {
+async function resetSuperAdminPassword() {
   const dataSource = new DataSource({
     type: 'postgres',
     host: process.env.DB_HOST,
@@ -23,10 +23,12 @@ async function createSuperAdmin() {
   await dataSource.initialize();
 
   const userRepo = dataSource.getRepository(User);
-  const exists = await userRepo.findOne({
+  const superAdmin = await userRepo.findOne({
     where: { email: 'ibrohimtoshqoriyev3@gmail.com' },
   });
-  if (!exists) {
+
+  if (!superAdmin) {
+    console.log('Superadmin not found, creating new one...');
     const password = await bcrypt.hash('superadmin123', 10);
     await userRepo.save({
       name: 'Super Admin',
@@ -34,10 +36,14 @@ async function createSuperAdmin() {
       password,
       role: Role.SuperAdmin,
     });
-    console.log('Superadmin created!');
   } else {
-    console.log('Superadmin already exists!');
+    superAdmin.password = await bcrypt.hash('superadmin123', 10);
+    superAdmin.role = Role.SuperAdmin;
+    await userRepo.save(superAdmin);
+    console.log('Superadmin password and role reset.');
   }
+
   await dataSource.destroy();
 }
-createSuperAdmin();
+
+resetSuperAdminPassword();

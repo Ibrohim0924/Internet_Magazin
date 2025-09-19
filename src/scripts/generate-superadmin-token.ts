@@ -23,18 +23,21 @@ async function generateSuperAdminToken() {
 
   const userRepo = dataSource.getRepository(User);
   const superAdmin = await userRepo.findOne({
-    where: { email: 'ibrohimtoshqoriyev3@mail.com' },
+    where: { email: 'ibrohimtoshqoriyev3@gmail.com' },
   });
 
   if (superAdmin) {
     const payload = { sub: superAdmin.id, email: superAdmin.email };
     const token = jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'your_jwt_secret',
-      { expiresIn: '1h' },
+      process.env.JWT_SECRET || 'admin123',
+      {
+        algorithm: 'HS256',
+        noTimestamp: false,
+      },
     );
 
-    console.log('Superadmin token:');
+    console.log('Superadmin token (expiry yo\'q):');
     console.log(token);
   } else {
     console.log('Superadmin not found!');

@@ -86,9 +86,10 @@ export class ProductsService {
     return this.productRepository.save(product);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<{ message: string }> {
     const product = await this.findOne(id);
     await this.productRepository.remove(product);
+    return { message: 'Product deleted successfully' };
   }
 
   private async findCategory(categoryId: number): Promise<Category> {
@@ -101,3 +102,4 @@ export class ProductsService {
     return category;
   }
 }
+

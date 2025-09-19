@@ -31,12 +31,15 @@ export class Category {
 
   @ManyToOne(() => Category, category => category.children, {
     nullable: true,
-    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'parent_id' })
   parent?: Category;
 
-  @OneToMany(() => Category, category => category.parent)
+  @OneToMany(() => Category, category => category.parent, {
+    cascade: ['remove'],
+  })
   children: Category[];
 
   @OneToMany(() => Product, product => product.category)
